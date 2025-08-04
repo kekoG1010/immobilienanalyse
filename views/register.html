@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="de">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Registrieren - Suchauftrag System</title>
+    <link rel="stylesheet" href="/register.css" />
+  </head>
+  <body>
+    <header>
+      <nav>
+        <h1><a href="/">Suchauftrag System</a></h1>
+        <div class="nav-links">
+          <a href="/">Home</a>
+          <a href="/login">Login</a>
+          <a href="/register" class="active">Registrieren</a>
+        </div>
+      </nav>
+    </header>
+
+    <main>
+      <div class="register-container">
+        <div class="form-section">
+          <div class="container form-container">
+            <h2>Neues Konto erstellen</h2>
+            <p>Registrieren Sie sich kostenlos und starten Sie sofort.</p>
+
+            <div class="progress-indicator">
+              <div class="progress-step active"></div>
+              <div class="progress-step active"></div>
+              <div class="progress-step"></div>
+            </div>
+
+            <script>
+              const params = new URLSearchParams(window.location.search);
+              if (params.get("error") === "1") {
+                document.write(
+                  '<div class="message error">E-Mail bereits vergeben oder Fehler bei der Registrierung.</div>'
+                );
+              }
+            </script>
+
+            <form action="/register" method="POST">
+              <div class="form-group">
+                <label for="email">E-Mail Adresse</label>
+                <input
+                  type="email"
+                  id="email"
+                  name="email"
+                  required
+                  autofocus
+                  placeholder="ihre.email@beispiel.de"
+                />
+              </div>
+
+              <div class="form-group">
+                <label for="password">Passwort</label>
+                <input
+                  type="password"
+                  id="password"
+                  name="password"
+                  required
+                  minlength="6"
+                  placeholder="Mindestens 6 Zeichen"
+                />
+                <small
+                  >Verwenden Sie ein sicheres Passwort mit mindestens 6
+                  Zeichen</small
+                >
+                <div class="password-strength"></div>
+              </div>
+
+              <button type="submit" class="btn-primary">Konto erstellen</button>
+            </form>
+
+            <p class="form-footer">
+              Bereits registriert? <a href="/login">Zum Login</a>
+            </p>
+          </div>
+        </div>
+
+        <div class="info-section">
+          <div class="info-content">
+            <h3>Warum bei uns registrieren?</h3>
+
+            <ul class="benefits-list">
+              <li>Unbegrenzte Suchaufträge erstellen</li>
+              <li>Sichere Datenverwaltung</li>
+              <li>Einfache Bedienung</li>
+              <li>Kostenlos und ohne Verpflichtungen</li>
+              <li>Sofortiger Zugang nach Registrierung</li>
+              <li>24/7 Verfügbarkeit</li>
+            </ul>
+
+            <div class="testimonial">
+              <p>
+                "Das beste System für Suchauftragsverwaltung, das ich je
+                verwendet habe. Einfach, schnell und zuverlässig!"
+              </p>
+              <cite>- Max Mustermann, zufriedener Nutzer</cite>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </body>
+</html>

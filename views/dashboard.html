@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="de">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Dashboard - Suchauftrag System</title>
+    <link rel="stylesheet" href="/dashboard.css" />
+  </head>
+  <body>
+    <header>
+      <nav>
+        <h1><a href="/">Suchauftrag System</a></h1>
+        <div class="nav-links">
+          <a href="/">Home</a>
+          <a href="/dashboard" class="active">Dashboard</a>
+          <a href="/logout">Logout</a>
+        </div>
+      </nav>
+    </header>
+
+    <main>
+      <div class="container">
+        <div class="dashboard-header">
+          <h2>Meine Suchaufträge</h2>
+          <a href="/" class="btn-primary">+ Neuer Suchauftrag</a>
+        </div>
+
+        <div class="stats-bar" id="stats-bar">
+          <div class="stat-item">
+            <span class="value">0</span>
+            <span class="label">Gesamt</span>
+          </div>
+          <div class="stat-item">
+            <span class="value">0</span>
+            <span class="label">Diesen Monat</span>
+          </div>
+          <div class="stat-item">
+            <span class="value">0</span>
+            <span class="label">Diese Woche</span>
+          </div>
+          <div class="stat-item">
+            <span class="value">0</span>
+            <span class="label">Heute</span>
+          </div>
+        </div>
+
+        <div class="controls-section">
+          <div class="search-box">
+            <input
+              type="text"
+              placeholder="Suchaufträge durchsuchen..."
+              id="search-input"
+            />
+          </div>
+          <div class="filter-buttons">
+            <button class="filter-btn active">Alle</button>
+            <button class="filter-btn">Aktiv</button>
+            <button class="filter-btn">Abgeschlossen</button>
+          </div>
+        </div>
+
+        <div id="suchauftraege-liste" class="suchauftraege-container">
+          <div class="loading">
+            <span>Lade Suchaufträge</span>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <script>
+      let allData = [];
+
+      // Suchaufträge laden
+      fetch("/api/suchauftraege")
+        .then((response) => response.json())
+        .then((data) => {
+          allData = data;
+          updateStats(data);
+          displaySuchauftraege(data);
+
+          // Suche implementieren
+          document
+            .getElementById("search-input")
+            .addEventListener("input", (e) => {
+              const searchTerm = e.target.value.toLowerCase();
+              const filtered = allData.filter((auftrag) => {
+                const adresse = auftrag.adresse;
+                return (
+                  adresse.strasse.toLowerCase().includes(searchTerm) ||
+                  adresse.stadt.toLowerCase().includes(searchTerm) ||
+                  adresse.plz.includes(searchTerm)
+                );
+              });
+              displaySuchauftraege(filtered);
+            });
+        })
+        .catch((error) => {
+          console.error("Fehler:", error);
+          document.getElementById("suchauftraege-liste").innerHTML =
+            '<p class="error">Fehler beim Laden der Suchaufträge.</p>';
+        });
+
+      function updateStats(data) {
+        const now = new Date();
+        const today = new Date(
+          now.getFullYear(),
+          now.getMonth(),
+          now.getDate()
+        );
+        const thisWeek = new Date(today.getTime() - 7 * 24 * 60 * 60 * 1000);
+        const thisMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+
+        let todayCount = 0,
+          weekCount = 0,
+          monthCount = 0;
+
+        data.forEach((auftrag) => {
+          const created = new Date(auftrag.created_at);
+          if (created >= today) todayCount++;
+          if (created >= thisWeek) weekCount++;
+          if (created >= thisMonth) monthCount++;
+        });
+
+        document.querySelector(".stats-bar").innerHTML = `
+                <div class="stat-item">
+                    <span class="value">${data.length}</span>
+                    <span class="label">Gesamt</span>
+                </div>
+                <div class="stat-item">
+                    <span class="value">${monthCount}</span>
+                    <span class="label">Diesen Monat</span>
+                </div>
+                <div class="stat-item">
+                    <span class="value">${weekCount}</span>
+                    <span class="label">Diese Woche</span>
+                </div>
+                <div class="stat-item">
+                    <span class="value">${todayCount}</span>
+                    <span class="label">Heute</span>
+                </div>
+            `;
+      }
+
+      function displaySuchauftraege(data) {
+        const container = document.getElementById("suchauftraege-liste");
+
+        if (data.length === 0) {
+          container.innerHTML = `
+                    <div class="no-data">
+                        <p>Noch keine Suchaufträge vorhanden</p>
+                        <a href="/" class="btn-primary">Ersten Suchauftrag erstellen</a>
+                    </div>
+                `;
+          return;
+        }
+
+        container.innerHTML = data
+          .map((auftrag) => {
+            const adresse = auftrag.adresse;
+            const datum = new Date(auftrag.created_at);
+            const formatiertesDatum = datum.toLocaleDateString("de-DE", {
+              day: "2-digit",
+              month: "long",
+              year: "numeric",
+            });
+
+            // Hier wird später die URL zur Detail-Seite des Kollegen eingebaut
+            const detailUrl = `/detail?id=${
+              auftrag.id
+            }&data=${encodeURIComponent(JSON.stringify(adresse))}`;
+
+            return `
+                    <div class="suchauftrag-item" onclick="alert('Detail-Seite wird vom Kollegen implementiert.\\n\\nDaten: ${JSON.stringify(
+                      adresse
+                    )}')">
+                        <div class="suchauftrag-adresse">
+                            <strong>${adresse.strasse} ${
+              adresse.hausnummer
+            }</strong>
+                            <span>${adresse.plz} ${adresse.stadt}</span>
+                        </div>
+                        <div class="suchauftrag-meta">
+                            <div class="suchauftrag-datum">
+                                ${formatiertesDatum}
+                            </div>
+                            <span class="status-badge active">Aktiv</span>
+                        </div>
+                    </div>
+                `;
+          })
+          .join("");
+      }
+    </script>
+  </body>
+</html>

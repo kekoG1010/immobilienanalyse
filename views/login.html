@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="de">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Login - Suchauftrag System</title>
+    <link rel="stylesheet" href="/login.css" />
+  </head>
+  <body>
+    <header>
+      <nav>
+        <h1><a href="/">Suchauftrag System</a></h1>
+        <div class="nav-links">
+          <a href="/">Home</a>
+          <a href="/login" class="active">Login</a>
+          <a href="/register">Registrieren</a>
+        </div>
+      </nav>
+    </header>
+
+    <main>
+      <div class="login-wrapper">
+        <div class="container form-container">
+          <h2>Anmelden</h2>
+          <p>Willkommen zurück! Bitte melden Sie sich an.</p>
+
+          <script>
+            const params = new URLSearchParams(window.location.search);
+            if (params.get("error") === "1") {
+              document.write(
+                '<div class="message error">E-Mail oder Passwort falsch.</div>'
+              );
+            }
+            if (params.get("registered") === "1") {
+              document.write(
+                '<div class="message success">Registrierung erfolgreich! Sie können sich jetzt anmelden.</div>'
+              );
+            }
+          </script>
+
+          <form action="/login" method="POST">
+            <div class="form-group">
+              <label for="email">E-Mail</label>
+              <input
+                type="email"
+                id="email"
+                name="email"
+                required
+                autofocus
+                placeholder="ihre.email@beispiel.de"
+              />
+            </div>
+
+            <div class="form-group">
+              <label for="password">Passwort</label>
+              <input
+                type="password"
+                id="password"
+                name="password"
+                required
+                placeholder="Ihr Passwort"
+              />
+            </div>
+
+            <button type="submit" class="btn-primary">Anmelden</button>
+          </form>
+
+          <p class="form-footer">
+            Noch kein Konto? <a href="/register">Jetzt registrieren</a>
+          </p>
+        </div>
+      </div>
+    </main>
+  </body>
+</html>

@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="de">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Suchauftrag System - Home</title>
+    <link rel="stylesheet" href="/home.css" />
+  </head>
+  <body>
+    <header>
+      <nav>
+        <h1><a href="/">Suchauftrag System</a></h1>
+        <div id="nav-links" class="nav-links"></div>
+      </nav>
+    </header>
+
+    <main>
+      <div id="content-area">
+        <!-- Inhalt wird dynamisch geladen -->
+      </div>
+    </main>
+
+    <script>
+      // Prüfen ob User eingeloggt ist
+      fetch("/api/suchauftraege")
+        .then((response) => {
+          if (response.ok) {
+            // User ist eingeloggt
+            showLoggedInContent();
+          } else {
+            // User ist nicht eingeloggt
+            showGuestContent();
+          }
+        })
+        .catch(() => showGuestContent());
+
+      function showLoggedInContent() {
+        document.getElementById("nav-links").innerHTML = `
+                <a href="/" class="active">Home</a>
+                <a href="/dashboard">Dashboard</a>
+                <a href="/logout">Logout</a>
+            `;
+
+        document.getElementById("content-area").innerHTML = `
+                <div class="form-container">
+                    <div class="form-header">
+                        <h2>Neuen Suchauftrag erstellen</h2>
+                        <p>Geben Sie die Adresse ein, für die Sie einen Suchauftrag anlegen möchten.</p>
+                    </div>
+                    
+                    ${getUrlMessage()}
+                    
+                    <form action="/api/suchauftrag" method="POST" class="address-form">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="plz">PLZ</label>
+                                <input type="text" id="plz" name="plz" required maxlength="5" pattern="[0-9]{5}" placeholder="12345">
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="stadt">Stadt</label>
+                                <input type="text" id="stadt" name="stadt" required placeholder="Berlin">
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="strasse">Straße</label>
+                            <input type="text" id="strasse" name="strasse" required placeholder="Hauptstraße">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="hausnummer">Hausnummer</label>
+                            <input type="text" id="hausnummer" name="hausnummer" required placeholder="42">
+                        </div>
+                        
+                        <button type="submit" class="submit-btn">SUCHAUFTRAG SPEICHERN</button>
+                    </form>
+                </div>
+            `;
+      }
+
+      function showGuestContent() {
+        document.getElementById("nav-links").innerHTML = `
+                <a href="/" class="active">Home</a>
+                <a href="/login">Login</a>
+                <a href="/register">Registrieren</a>
+            `;
+
+        document.getElementById("content-area").innerHTML = `
+                <div class="hero-section">
+                    <div class="hero-content">
+                        <h2>Professionelle Suchauftragsverwaltung</h2>
+                        <p>Verwalten Sie Ihre Adressen und Suchaufträge mit unserem modernen System. Sicher, schnell und zuverlässig.</p>
+                        <div class="button-group">
+                            <a href="/login" class="btn-primary">Jetzt anmelden →</a>
+                            <a href="/register" class="btn-secondary">Kostenlos registrieren</a>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="features-grid">
+                    <div class="feature-card">
+                        <span class="feature-icon">🔒</span>
+                        <h3>Sicher & Geschützt</h3>
+                        <p>Ihre Daten sind bei uns sicher. Verschlüsselte Übertragung und sichere Speicherung garantiert.</p>
+                    </div>
+                    <div class="feature-card">
+                        <span class="feature-icon">⚡</span>
+                        <h3>Blitzschnell</h3>
+                        <p>Erstellen Sie Suchaufträge in Sekunden. Unsere optimierte Plattform sorgt für beste Performance.</p>
+                    </div>
+                    <div class="feature-card">
+                        <span class="feature-icon">📊</span>
+                        <h3>Übersichtlich</h3>
+                        <p>Behalten Sie alle Ihre Suchaufträge im Blick. Strukturierte Darstellung für maximale Effizienz.</p>
+                    </div>
+                </div>
+                
+                <div class="cta-section">
+                    <div class="cta-content">
+                        <h3>Bereit durchzustarten?</h3>
+                        <p>Werden Sie Teil unserer wachsenden Community und optimieren Sie Ihre Arbeitsabläufe.</p>
+                        <a href="/register" class="btn-primary">Jetzt kostenlos starten →</a>
+                    </div>
+                </div>
+            `;
+      }
+
+      function getUrlMessage() {
+        const params = new URLSearchParams(window.location.search);
+        if (params.get("success") === "1") {
+          return '<div class="message success">Suchauftrag erfolgreich gespeichert!</div>';
+        }
+        if (params.get("error") === "1") {
+          return '<div class="message error">Fehler beim Speichern des Suchauftrags.</div>';
+        }
+        return "";
+      }
+    </script>
+  </body>
+</html>
