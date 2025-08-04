@@ -47,9 +47,10 @@ app.post("/login", async (req, res) => {
   const { email, password } = req.body;
 
   try {
-    const result = await pool.query("SELECT * FROM users WHERE email = $1", [
-      email,
-    ]);
+    const result = await pool.query(
+      "SELECT * FROM immo_users WHERE email = $1",
+      [email]
+    );
 
     if (result.rows.length === 0) {
       return res.redirect("/login?error=1");
@@ -83,7 +84,7 @@ app.post("/register", async (req, res) => {
     const hashedPassword = await bcrypt.hash(password, 10);
 
     await pool.query(
-      "INSERT INTO users (email, password_hash) VALUES ($1, $2)",
+      "INSERT INTO immo_users (email, password_hash) VALUES ($1, $2)",
       [email, hashedPassword]
     );
 
@@ -103,7 +104,7 @@ app.get("/dashboard", requireLogin, async (req, res) => {
 app.get("/api/suchauftraege", requireLogin, async (req, res) => {
   try {
     const result = await pool.query(
-      "SELECT * FROM suchauftraege WHERE user_id = $1 ORDER BY created_at DESC",
+      "SELECT * FROM immo_suchauftraege WHERE user_id = $1 ORDER BY created_at DESC",
       [req.session.userId]
     );
     res.json(result.rows);
@@ -126,7 +127,7 @@ app.post("/api/suchauftrag", requireLogin, async (req, res) => {
 
   try {
     await pool.query(
-      "INSERT INTO suchauftraege (user_id, adresse) VALUES ($1, $2)",
+      "INSERT INTO immo_suchauftraege (user_id, adresse) VALUES ($1, $2)",
       [req.session.userId, JSON.stringify(adresse)]
     );
     res.redirect("/?success=1");
